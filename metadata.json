@@ -1,0 +1,5 @@
+{
+  "name": "React Stock Portfolio Tracker",
+  "description": "A sleek and modern stock portfolio tracking application built with React, TypeScript, and Tailwind CSS. Users can search for stocks, add them to their portfolio with purchase details, and view real-time price data, daily changes, and portfolio summary calculations. The portfolio is persisted in the browser's local storage.",
+  "requestFramePermissions": []
+}
