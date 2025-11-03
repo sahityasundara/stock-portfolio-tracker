@@ -24,6 +24,11 @@ const StockCardSkeleton: React.FC = () => {
       {/* Chart Skeleton */}
       <div className="h-20 bg-slate-700 rounded"></div>
 
+      {/* Button Skeleton */}
+      <div className="mt-4">
+        <div className="h-10 w-full bg-slate-700 rounded-lg"></div>
+      </div>
+
       {/* Details Skeleton */}
       <div className="mt-4 pt-4 border-t border-slate-700 space-y-2">
         <div className="flex justify-between">

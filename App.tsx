@@ -9,6 +9,8 @@ import StockSearch from './components/StockSearch';
 import PortfolioList from './components/PortfolioList';
 import AddStockModal from './components/AddStockModal';
 import SettingsModal from './components/SettingsModal';
+import AnalysisModal from './components/AnalysisModal';
+import WelcomeModal from './components/WelcomeModal';
 
 const App: React.FC = () => {
   const [portfolio, setPortfolio] = useLocalStorage<PortfolioItem[]>('stock_portfolio', samplePortfolioItems);
@@ -22,13 +24,16 @@ const App: React.FC = () => {
   
   const [isAddStockModalOpen, setIsAddStockModalOpen] = useState(false);
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
+  const [isAnalysisModalOpen, setIsAnalysisModalOpen] = useState(false);
   
   const [selectedStock, setSelectedStock] = useState<StockSearchResult | null>(null);
+  const [stockForAnalysis, setStockForAnalysis] = useState<StockData | null>(null);
   
-  const [isApiBannerDismissed, setIsApiBannerDismissed] = useLocalStorage('api_banner_dismissed', false);
+  const [hasOnboarded, setHasOnboarded] = useLocalStorage('has_onboarded', false);
   const [isRateLimited, setIsRateLimited] = useLocalStorage<{ limited: boolean; until: number }>('api_rate_limited', { limited: false, until: 0 });
 
   const isApiKeyMissing = !alphaVantageApiKey;
+  const showWelcomeModal = isApiKeyMissing && !hasOnboarded;
 
   useEffect(() => {
     // This effect ensures that if the portfolio has no items (e.g., user clears localStorage),
@@ -132,8 +137,18 @@ const App: React.FC = () => {
   const handleSaveApiKey = (key: string) => {
     setAlphaVantageApiKey(key);
     setIsSettingsModalOpen(false);
+    setHasOnboarded(true);
+  };
+
+  const handleContinueWithSample = () => {
+    setHasOnboarded(true);
   };
   
+  const handleOpenAnalysisModal = (stock: StockData) => {
+    setStockForAnalysis(stock);
+    setIsAnalysisModalOpen(true);
+  };
+
   const sortedPortfolioData = useMemo(() => {
     return [...portfolioData].sort((a, b) => a.symbol.localeCompare(b.symbol));
   }, [portfolioData]);
@@ -142,16 +157,17 @@ const App: React.FC = () => {
     <div className="min-h-screen bg-slate-900 font-sans">
       <Header onSettingsClick={() => setIsSettingsModalOpen(true)} />
       <main className="container mx-auto p-4 md:p-6 lg:p-8">
-        {isApiKeyMissing && !isApiBannerDismissed && (
-          <div className="mb-6 bg-cyan-900/50 border border-cyan-700 text-cyan-200 px-4 py-3 rounded-lg relative">
-            <strong className="font-bold">Showing Sample Data.</strong>
-            <span className="block sm:inline ml-2">To get live prices and search for new stocks, add your free Alpha Vantage API key in Settings.</span>
+        {isApiKeyMissing && hasOnboarded && (
+          <div className="mb-6 bg-cyan-900/50 border border-cyan-700 text-cyan-200 px-4 py-3 rounded-lg flex justify-between items-center">
+            <div>
+              <strong className="font-bold">Viewing Sample Data.</strong>
+              <span className="block sm:inline ml-2">To get live prices, add your free Alpha Vantage API key.</span>
+            </div>
             <button 
-              onClick={() => setIsApiBannerDismissed(true)} 
-              className="absolute top-0 bottom-0 right-0 px-4 py-3"
-              aria-label="Dismiss"
+              onClick={() => setIsSettingsModalOpen(true)}
+              className="bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-2 px-4 rounded-lg transition text-sm whitespace-nowrap"
             >
-              <svg className="fill-current h-6 w-6 text-cyan-300" role="button" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><title>Close</title><path d="M14.348 14.849a1.2 1.2 0 0 1-1.697 0L10 11.819l-2.651 3.029a1.2 1.2 0 1 1-1.697-1.697l2.758-3.15-2.759-3.152a1.2 1.2 0 1 1 1.697-1.697L10 8.183l2.651-3.031a1.2 1.2 0 1 1 1.697 1.697l-2.758 3.152 2.758 3.15a1.2 1.2 0 0 1 0 1.698z"/></svg>
+              Add API Key
             </button>
           </div>
         )}
@@ -184,12 +200,20 @@ const App: React.FC = () => {
             onRemoveStock={handleRemoveStock}
             onRefreshStock={handleRefreshStock}
             onFetchHistory={handleFetchHistory}
+            onAnalyzeStock={handleOpenAnalysisModal}
             refreshingSymbols={refreshingSymbols}
             loadingHistorySymbols={loadingHistorySymbols}
             isRateLimited={isRateLimited.limited}
           />
         </div>
       </main>
+
+      {showWelcomeModal && (
+        <WelcomeModal 
+          onSaveApiKey={handleSaveApiKey}
+          onContinueWithSampleData={handleContinueWithSample}
+        />
+      )}
 
       {isAddStockModalOpen && selectedStock && (
         <AddStockModal 
@@ -203,6 +227,12 @@ const App: React.FC = () => {
           currentKey={alphaVantageApiKey}
           onClose={() => setIsSettingsModalOpen(false)}
           onSave={handleSaveApiKey}
+        />
+      )}
+      {isAnalysisModalOpen && stockForAnalysis && (
+        <AnalysisModal
+            stock={stockForAnalysis}
+            onClose={() => setIsAnalysisModalOpen(false)}
         />
       )}
     </div>

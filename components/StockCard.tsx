@@ -1,19 +1,20 @@
 import React from 'react';
 import { LineChart, Line, ResponsiveContainer, Tooltip } from 'recharts';
 import { StockData } from '../types';
-import { TrashIcon, RefreshIcon } from './icons';
+import { TrashIcon, RefreshIcon, SparklesIcon } from './icons';
 
 interface StockCardProps {
   stock: StockData;
   onRemove: (symbol: string) => void;
   onRefresh: (symbol: string) => void;
   onFetchHistory: (symbol: string) => void;
+  onAnalyze: (stock: StockData) => void;
   isRefreshing: boolean;
   isLoadingHistory: boolean;
   isRateLimited: boolean;
 }
 
-const StockCard: React.FC<StockCardProps> = ({ stock, onRemove, onRefresh, onFetchHistory, isRefreshing, isLoadingHistory, isRateLimited }) => {
+const StockCard: React.FC<StockCardProps> = ({ stock, onRemove, onRefresh, onFetchHistory, onAnalyze, isRefreshing, isLoadingHistory, isRateLimited }) => {
   const isPriceLoaded = !!stock.lastUpdated;
   const hasHistory = stock.history && stock.history.length > 0;
 
@@ -101,6 +102,16 @@ const StockCard: React.FC<StockCardProps> = ({ stock, onRemove, onRefresh, onFet
               {isRateLimited && <p className="text-slate-400 text-sm">API limit reached.</p>}
             </div>
           )}
+        </div>
+        <div className="mt-4">
+            <button
+                onClick={() => onAnalyze(stock)}
+                className="w-full flex items-center justify-center gap-2 bg-cyan-600/80 hover:bg-cyan-600 text-white font-semibold py-2 px-4 rounded-lg transition-all duration-300 transform hover:scale-105"
+                aria-label={`Analyze ${stock.symbol} with AI`}
+            >
+                <SparklesIcon className="h-5 w-5" />
+                <span>Analyze with AI</span>
+            </button>
         </div>
       </div>
       

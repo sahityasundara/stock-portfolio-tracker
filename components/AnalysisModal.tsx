@@ -1,5 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { marked } from 'marked';
+import DOMPurify from 'dompurify';
 import { StockData } from '../types';
+import { getStockAnalysis } from '../services/geminiService';
 import { SparklesIcon } from './icons';
 
 interface AnalysisModalProps {
@@ -32,6 +35,12 @@ const AnalysisModal: React.FC<AnalysisModalProps> = ({ stock, onClose }) => {
     fetchAnalysis();
   }, [stock]);
 
+  const sanitizedHtml = useMemo(() => {
+    if (!analysis) return '';
+    const rawHtml = marked.parse(analysis, { gfm: true, breaks: true });
+    return DOMPurify.sanitize(rawHtml as string);
+  }, [analysis]);
+
   const renderContent = () => {
     if (isLoading) {
       return (
@@ -51,8 +60,8 @@ const AnalysisModal: React.FC<AnalysisModalProps> = ({ stock, onClose }) => {
     }
     return (
         <div 
-          className="text-slate-300 whitespace-pre-wrap prose prose-invert prose-sm max-w-none prose-headings:text-cyan-400 prose-strong:text-slate-100"
-          dangerouslySetInnerHTML={{ __html: analysis.replace(/### (.*)/g, '<h3>$1</h3>').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') }}
+          className="text-slate-300 whitespace-pre-wrap prose prose-invert prose-sm max-w-none prose-p:my-2 prose-headings:text-cyan-400 prose-strong:text-slate-100 prose-ul:list-disc prose-ul:pl-5 prose-li:my-1"
+          dangerouslySetInnerHTML={{ __html: sanitizedHtml }}
         />
     );
   };

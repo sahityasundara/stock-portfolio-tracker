@@ -8,6 +8,7 @@ interface PortfolioListProps {
   onRemoveStock: (symbol: string) => void;
   onRefreshStock: (symbol: string) => void;
   onFetchHistory: (symbol: string) => void;
+  onAnalyzeStock: (stock: StockData) => void;
   refreshingSymbols: Set<string>;
   loadingHistorySymbols: Set<string>;
   isRateLimited: boolean;
@@ -18,6 +19,7 @@ const PortfolioList: React.FC<PortfolioListProps> = ({
   onRemoveStock, 
   onRefreshStock,
   onFetchHistory,
+  onAnalyzeStock,
   refreshingSymbols, 
   loadingHistorySymbols,
   isRateLimited 
@@ -46,6 +48,7 @@ const PortfolioList: React.FC<PortfolioListProps> = ({
                     onRemove={onRemoveStock}
                     onRefresh={onRefreshStock}
                     onFetchHistory={onFetchHistory}
+                    onAnalyze={onAnalyzeStock}
                     isRefreshing={refreshingSymbols.has(stock.symbol)}
                     isLoadingHistory={loadingHistorySymbols.has(stock.symbol)}
                     isRateLimited={isRateLimited}
