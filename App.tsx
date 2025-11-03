@@ -40,24 +40,6 @@ const App: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    // Sync portfolioData if portfolio changes from another tab/window
-    if (portfolio.length !== portfolioData.length || portfolio.some((p, i) => p.symbol !== portfolioData[i]?.symbol)) {
-      setPortfolioData(
-        portfolio.map(item => {
-          const existingData = portfolioData.find(d => d.symbol === item.symbol);
-          return existingData || {
-            ...item,
-            currentPrice: item.purchasePrice,
-            change: 0,
-            changePercent: '0.00%',
-            history: [],
-          };
-        })
-      );
-    }
-  }, [portfolio, portfolioData, setPortfolioData]);
-
-  useEffect(() => {
     if (isRateLimited.limited && Date.now() > isRateLimited.until) {
       setIsRateLimited({ limited: false, until: 0 });
     }
